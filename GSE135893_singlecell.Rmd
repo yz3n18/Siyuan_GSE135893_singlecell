@@ -1,0 +1,34 @@
+---
+title: "GSE135893_singlecell"
+author: "Yilu"
+date: "13/01/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(Seurat)
+library(dplyr)
+```
+
+
+```{r}
+# Load the dataset
+cell_type<-read.csv('/Users/yihuawang/Downloads/GSE135893_singlecell/GSE135893_IPF_metadata.csv',header = T,sep = ',')
+cell_type<-subset(cell_type, celltype== 'HAS1 High Fibroblasts' | celltype=='Fibroblasts' | celltype=='PLIN2+ Fibroblasts'|
+                    celltype=='Myofibroblasts')
+
+pulmonary_fibrosis <- Read10X(data.dir = "/Users/yihuawang/Downloads/GSE135893_singlecell/rawfile/",
+                              gene.column = 1)
+pulmonary_fibrosis_seurat <- CreateSeuratObject(pulmonary_fibrosis,
+                          project = "scRNA lung",
+                          min.features = 200)
+pulmonary_fibrosis_seurat_data<-GetAssayData(object = pulmonary_fibrosis_seurat, slot = 'counts')
+pulmonary_fibrosis_seurat_data_fibro<-pulmonary_fibrosis_seurat_data[,cell_type$X]
+
+write.table(pulmonary_fibrosis_seurat_data_fibro,file='pulmonary_fibrosis_seurat_data_fibro.txt',sep = '\t',row.names = T)
+write.table(cell_type$celltype,file='fibro_celltype.txt',sep = '\t',row.names = T)
+```
